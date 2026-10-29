@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Toronto's Age Patterns</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #map {
+      position: absolute;
+      inset: 0;
+    }
+
+    #info {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: white;
+      padding: 16px;
+      width: 230px;
+      max-width: calc(100vw - 100px);
+      border: 1px solid #cccccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    p {
+      margin: 8px 0;
+      line-height: 1.4;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 14px;
+      border: 1px solid #aaaaaa;
+    }
+
+    .source {
+      font-size: 11px;
+      color: #555555;
+    }
+
+    .maplibregl-popup-content {
+      white-space: pre-line;
+      font: 14px/1.5 Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+
+  <div id="info">
+    <h1>Toronto's Age Patterns</h1>
+    <p>Median age by neighbourhood · 2021 Census</p>
+    <p>Click a neighbourhood to see its median age.</p>
+
+    <strong>Median age (years)</strong>
+
+    <div class="legend-row">
+      <span class="swatch" style="background: #eff3ff"></span>
+      Under 35
+    </div>
+    <div class="legend-row">
+      <span class="swatch" style="background: #bdd7e7"></span>
+      35 to under 40
+    </div>
+    <div class="legend-row">
+      <span class="swatch" style="background: #6baed6"></span>
+      40 to under 45
+    </div>
+    <div class="legend-row">
+      <span class="swatch" style="background: #3182bd"></span>
+      45 to under 50
+    </div>
+    <div class="legend-row">
+      <span class="swatch" style="background: #08519c"></span>
+      50 and over
+    </div>
+
+    <p>Zoom in for local streets and transit tracks.</p>
+
+    <p class="source">
+      Data: City of Toronto Neighbourhood Profiles,
+      Statistics Canada 2021 Census, and City of Toronto
+      neighbourhood boundaries.
+    </p>
+  </div>
+
+  <script>
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'toronto-age-style.json',
+      center: [-79.52, 43.68],
+      zoom: 11
+    });
+
+    map.addControl(new maplibregl.NavigationControl());
+    map.on('click', 'median-age-fill', function (event) {
+      const neighbourhood = event.features[0].properties;
+
+      new maplibregl.Popup()
+        .setLngLat(event.lngLat)
+        .setText(
+          neighbourhood.name +
+          '\nMedian age: ' +
+          Number(neighbourhood.median_age).toFixed(1) +
+          ' years\n2021 Census'
+        )
+        .addTo(map);
+    });
+
+    map.on('mouseenter', 'median-age-fill', function () {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'median-age-fill', function () {
+      map.getCanvas().style.cursor = '';
+    });
+  </script>
+</body>
+</html>
